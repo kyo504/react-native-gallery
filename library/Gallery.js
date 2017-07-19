@@ -1,15 +1,11 @@
 import React, { Component, PropTypes } from 'react';
-import {
-  View
-} from 'react-native';
+import { View } from 'react-native';
 
 import Image from 'react-native-transformable-image';
 import ViewPager from '@ldn0x7dc/react-native-view-pager';
-import {createResponder} from 'react-native-gesture-responder';
-
+import { createResponder } from 'react-native-gesture-responder';
 
 export default class Gallery extends Component {
-
   static propTypes = {
     ...View.propTypes,
     images: PropTypes.array,
@@ -21,7 +17,7 @@ export default class Gallery extends Component {
     onPageScroll: PropTypes.func,
 
     onSingleTapConfirmed: PropTypes.func,
-    onGalleryStateChanged: PropTypes.func
+    onGalleryStateChanged: PropTypes.func,
   };
 
   imageRefs = new Map();
@@ -38,9 +34,11 @@ export default class Gallery extends Component {
   componentWillMount() {
     function onResponderReleaseOrTerminate(evt, gestureState) {
       if (this.activeResponder) {
-        if (this.activeResponder === this.viewPagerResponder
-          && !this.shouldScrollViewPager(evt, gestureState)
-          && Math.abs(gestureState.vx) > 0.5) {
+        if (
+          this.activeResponder === this.viewPagerResponder &&
+          !this.shouldScrollViewPager(evt, gestureState) &&
+          Math.abs(gestureState.vx) > 0.5
+        ) {
           this.activeResponder.onEnd(evt, gestureState, true);
           this.getViewPagerInstance().flingToPage(this.currentPage, gestureState.vx);
         } else {
@@ -72,13 +70,15 @@ export default class Gallery extends Component {
           const dx = gestureState.moveX - gestureState.previousMoveX;
           const offset = this.getViewPagerInstance().getScrollOffsetFromCurrentPage();
           if (dx > 0 && offset > 0 && !this.shouldScrollViewPager(evt, gestureState)) {
-            if (dx > offset) { // active image responder
+            if (dx > offset) {
+              // active image responder
               this.getViewPagerInstance().scrollByOffset(offset);
               gestureState.moveX -= offset;
               this.activeImageResponder(evt, gestureState);
             }
           } else if (dx < 0 && offset < 0 && !this.shouldScrollViewPager(evt, gestureState)) {
-            if (dx < offset) { // active image responder
+            if (dx < offset) {
+              // active image responder
               this.getViewPagerInstance().scrollByOffset(offset);
               gestureState.moveX -= offset;
               this.activeImageResponder(evt, gestureState);
@@ -92,7 +92,7 @@ export default class Gallery extends Component {
       onResponderTerminationRequest: (evt, gestureState) => false, //Do not allow parent view to intercept gesture
       onResponderSingleTapConfirmed: (evt, gestureState) => {
         this.props.onSingleTapConfirmed && this.props.onSingleTapConfirmed(this.currentPage);
-      }
+      },
     });
 
     this.viewPagerResponder = {
@@ -104,20 +104,20 @@ export default class Gallery extends Component {
       },
       onEnd: (evt, gestureState, disableSettle) => {
         this.getViewPagerInstance().onResponderRelease(evt, gestureState, disableSettle);
-      }
-    }
+      },
+    };
 
     this.imageResponder = {
-      onStart: ((evt, gestureState) => {
+      onStart: (evt, gestureState) => {
         this.getCurrentImageTransformer().onResponderGrant(evt, gestureState);
-      }),
+      },
       onMove: (evt, gestureState) => {
         this.getCurrentImageTransformer().onResponderMove(evt, gestureState);
       },
       onEnd: (evt, gestureState) => {
         this.getCurrentImageTransformer().onResponderRelease(evt, gestureState);
-      }
-    }
+      },
+    };
   }
 
   shouldScrollViewPager(evt, gestureState) {
@@ -153,7 +153,7 @@ export default class Gallery extends Component {
         this.imageResponder.onEnd(evt, gestureState);
       }
       this.activeResponder = this.viewPagerResponder;
-      this.viewPagerResponder.onStart(evt, gestureState)
+      this.viewPagerResponder.onStart(evt, gestureState);
     }
   }
 
@@ -190,7 +190,7 @@ export default class Gallery extends Component {
     return (
       <ViewPager
         {...this.props}
-        ref='galleryViewPager'
+        ref="galleryViewPager"
         scrollEnabled={false}
         renderPage={this.renderPage.bind(this)}
         pageDataArray={images}
@@ -223,30 +223,31 @@ export default class Gallery extends Component {
     return (
       <Image
         {...other}
-        onViewTransformed={((transform) => {
-           onViewTransformed && onViewTransformed(transform, pageId);
+        onViewTransformed={(transform => {
+          onViewTransformed && onViewTransformed(transform, pageId);
         }).bind(this)}
-        onTransformGestureReleased={((transform) => {
-           onTransformGestureReleased && onTransformGestureReleased(transform, pageId);
+        onTransformGestureReleased={(transform => {
+          onTransformGestureReleased && onTransformGestureReleased(transform, pageId);
         }).bind(this)}
-        ref={((ref) => {
-           this.imageRefs.set(pageId, ref);
+        ref={(ref => {
+          this.imageRefs.set(pageId, ref);
         }).bind(this)}
         key={'innerImage#' + pageId}
-        style={{width: layout.width, height: layout.height}}
-        source={{uri: pageData}}/>
+        style={{ width: layout.width, height: layout.height }}
+        source={pageData}
+      />
     );
   }
 
   resetHistoryImageTransform() {
     let transformer = this.getImageTransformer(this.currentPage + 1);
     if (transformer) {
-      transformer.forceUpdateTransform({scale: 1, translateX: 0, translateY: 0});
+      transformer.forceUpdateTransform({ scale: 1, translateX: 0, translateY: 0 });
     }
 
     transformer = this.getImageTransformer(this.currentPage - 1);
     if (transformer) {
-      transformer.forceUpdateTransform({scale: 1, translateX: 0, translateY: 0});
+      transformer.forceUpdateTransform({ scale: 1, translateX: 0, translateY: 0 });
     }
   }
 }
