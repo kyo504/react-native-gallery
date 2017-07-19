@@ -235,6 +235,7 @@ export default class Gallery extends Component {
         key={'innerImage#' + pageId}
         style={{ width: layout.width, height: layout.height }}
         source={pageData}
+        pixels={pageData.pixels}
       />
     );
   }
